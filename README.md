@@ -1,6 +1,6 @@
 # focus-pane-or-panel
 
-Change focus or pane or panel seamlessly.
+Change focus of pane or panel seamlessly.
 
 # keymaps
 
