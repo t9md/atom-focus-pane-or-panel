@@ -1,55 +1,27 @@
-# choose-pane [![Build Status](https://travis-ci.org/t9md/atom-choose-pane.svg?branch=master)](https://travis-ci.org/t9md/atom-choose-pane)
+# focus-pane-or-panel
 
-choose pane by label.
+Change focus or pane or panel seamlessly.
 
-![](https://raw.githubusercontent.com/t9md/t9md/0331a56774cd283aab2548708d740cd0f9f8e59c/img/atom-choose-pane.gif)
+# keymaps
 
-# How to start
-
-1. Configure keymap in your `keymap.cson`. (no default keymap)
-2. Invoke `choose-pane:start` from that keymap.
-3. Label is shown on panels and panes
-4. Choose label where you want to focus
-
-# Style customization
-
-You can customize label style in `style.less`.
-
-```less
-.choose-pane {
-  color: red;
-}
-```
-
-# Keymap example
-
-- for normal user
+No keymap by default.
 
 ```coffeescript
-'atom-workspace:not([mini])':
-  'ctrl-;': 'choose-pane:start'
+'atom-text-editor.vim-mode-plus.normal-mode':
+  'ctrl-j': 'focus-pane-or-panel-below'
+  'ctrl-k': 'focus-pane-or-panel-above'
+  'ctrl-h': 'focus-pane-or-panel-on-left'
+  'ctrl-l': 'focus-pane-or-panel-on-right'
 
-# Back to last focused.
-'atom-text-editor#choose-pane-editor':
-  'ctrl-;': 'choose-pane:last-focused'
-```
-
-- Mine(I'm vim-mode-plus user)
-
-```coffeescript
-'atom-text-editor.vim-mode-plus:not(.insert-mode)':
-  '-': 'choose-pane:start'
-
-# For tree-view
 '.tree-view':
-  '-': 'choose-pane:start'
+  'ctrl-h': 'focus-pane-or-panel-on-left'
+  'ctrl-l': 'focus-pane-or-panel-on-right'
 
-# Map '-', so that I can focus last-focused element by typing `-` twice.
-'atom-text-editor#choose-pane-editor':
-  '-': 'choose-pane:last-focused'
+'.platform-darwin .find-and-replace atom-text-editor':
+  'ctrl-j': 'focus-pane-or-panel-below'
+  'ctrl-k': 'focus-pane-or-panel-above'
+
+'.platform-darwin .project-find atom-text-editor':
+  'ctrl-j': 'focus-pane-or-panel-below'
+  'ctrl-k': 'focus-pane-or-panel-above'
 ```
-
-# Label customization
-
-From setting view, change `labelChars`.  
-**Label is always matched case insensitively**.
