@@ -10,10 +10,10 @@
   },
   "activationCommands": {
     "atom-workspace": [
-      "focus-pane-or-panel-below",
-      "focus-pane-or-panel-above",
-      "focus-pane-or-panel-on-left",
-      "focus-pane-or-panel-on-right"
+      "focus-pane-or-panel:focus-below",
+      "focus-pane-or-panel:focus-above",
+      "focus-pane-or-panel:focus-on-left",
+      "focus-pane-or-panel:focus-on-right"
     ]
   },
   "dependencies": {

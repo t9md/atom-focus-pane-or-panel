@@ -50,10 +50,10 @@ module.exports =
   activate: ->
     @subscriptions = new CompositeDisposable
     @subscribe atom.commands.add 'atom-workspace',
-      'focus-pane-or-panel-above': => @focusPaneOrPanel('up', "window:focus-pane-above")
-      'focus-pane-or-panel-below': => @focusPaneOrPanel('down', "window:focus-pane-below")
-      'focus-pane-or-panel-on-left': => @focusPaneOrPanel('left', "window:focus-pane-on-left")
-      'focus-pane-or-panel-on-right': => @focusPaneOrPanel('right', "window:focus-pane-on-right")
+      'focus-pane-or-panel:focus-above': => @focusPaneOrPanel('up', "window:focus-pane-above")
+      'focus-pane-or-panel:focus-below': => @focusPaneOrPanel('down', "window:focus-pane-below")
+      'focus-pane-or-panel:focus-on-left': => @focusPaneOrPanel('left', "window:focus-pane-on-left")
+      'focus-pane-or-panel:focus-on-right': => @focusPaneOrPanel('right', "window:focus-pane-on-right")
 
   deactivate: ->
     @subscriptions?.dispose()
