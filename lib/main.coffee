@@ -6,12 +6,6 @@ _ = require 'underscore-plus'
 getView = (model) ->
   atom.views.getView(model)
 
-getPanels = (position) ->
-  atom.workspace["get#{_.capitalize(position)}Panels"]()
-
-getVisiblePanels = (position) ->
-  getPanels(position).filter (panel) -> panel.isVisible()
-
 getOppositeDirection = (direction) ->
   switch direction
     when 'up' then 'down'
@@ -63,7 +57,9 @@ module.exports =
 
   focusPanelForDirection: (direction) ->
     position = panelPositionForDirection(direction)
-    if (panels = getVisiblePanels(position)).length
+    methodName = "get#{_.capitalize(position)}Panels"
+    panels = atom.workspace[methodName]().filter (panel) -> panel.isVisible()
+    if panels.length
       switch direction
         when 'up', 'left' then _.last(panels).getItem().focus?()
         when 'down', 'right' then _.first(panels).getItem().focus?()
