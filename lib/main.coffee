@@ -16,31 +16,26 @@ getOppositeDirection = (direction) ->
   switch direction
     when 'up' then 'down'
     when 'down' then 'up'
-    when 'left' then 'right'
     when 'right' then 'left'
+    when 'left' then 'right'
 
 getFocusedPanelPosition = ->
   for position in ['top', 'bottom', 'left', 'right']
-    panelContainerElement = getView(atom.workspace.panelContainers[position])
-    if panelContainerElement.contains(document.activeElement)
+    if getView(atom.workspace.panelContainers[position]).contains(document.activeElement)
       return position
   null
 
-directionToPanelPosition =
-  up: 'top'
-  down: 'bottom'
-  left: 'left'
-  right: 'right'
 panelPositionForDirection = (direction) ->
-  directionToPanelPosition[direction]
+  switch direction
+    when 'up' then 'top'
+    when 'down' then 'bottom'
+    else direction
 
-panelPositionToDirection =
-  top: 'up'
-  bottom: 'down'
-  left: 'left'
-  right: 'right'
 directionForPanelPosition = (position) ->
-  panelPositionToDirection[position]
+  switch position
+    when 'top' then 'up'
+    when 'bottom' then 'down'
+    else position
 
 # Main
 # -------------------------
@@ -69,10 +64,9 @@ module.exports =
   focusPanelForDirection: (direction) ->
     position = panelPositionForDirection(direction)
     if (panels = getVisiblePanels(position)).length
-      panel = switch direction
-        when 'up', 'left' then _.last(panels)
-        when 'down', 'right' then _.first(panels)
-      panel.getItem().focus?()
+      switch direction
+        when 'up', 'left' then _.last(panels).getItem().focus?()
+        when 'down', 'right' then _.first(panels).getItem().focus?()
 
   focusPaneOrPanel: (direction, commandName) ->
     if @isPaneFocused()
