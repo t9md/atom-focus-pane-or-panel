@@ -10,7 +10,7 @@ No keymap by default.
 
 ```coffeescript
 'body':
-  :'cmd-k cmd-up': 'focus-pane-or-panel:focus-above'
+  'cmd-k cmd-up': 'focus-pane-or-panel:focus-above'
   'cmd-k cmd-down': 'focus-pane-or-panel:focus-below'
   'cmd-k cmd-left': 'focus-pane-or-panel:focus-on-left'
   'cmd-k cmd-right': 'focus-pane-or-panel:focus-on-right'
