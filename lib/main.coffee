@@ -13,6 +13,7 @@ oppositeDirection =
   right: 'left'
 
 getView = (model) -> atom.views.getView(model)
+
 getCenterWorkspace = -> atom.workspace.getCenter?() ? atom.workspace
 
 translateDirection = (direction, capitalize) ->
