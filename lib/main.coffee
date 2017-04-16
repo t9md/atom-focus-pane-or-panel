@@ -3,77 +3,110 @@ _ = require 'underscore-plus'
 
 # Utils
 # -------------------------
-getView = (model) ->
-  atom.views.getView(model)
+AllPanelDirections = ['up', 'down', 'left', 'right']
+AllDockDirections = ['down', 'left', 'right']
 
-getOppositeDirection = (direction) ->
-  switch direction
-    when 'up' then 'down'
-    when 'down' then 'up'
-    when 'right' then 'left'
-    when 'left' then 'right'
+oppositeDirection =
+  up: 'down'
+  down: 'up'
+  left: 'right'
+  right: 'left'
 
-getFocusedPanelPosition = ->
-  for position in ['top', 'bottom', 'left', 'right']
-    if getView(atom.workspace.panelContainers[position]).contains(document.activeElement)
-      return position
-  null
+getView = (model) -> atom.views.getView(model)
+getCenterWorkspace = -> atom.workspace.getCenter?() ? atom.workspace
 
-panelPositionForDirection = (direction) ->
-  switch direction
+translateDirection = (direction, capitalize) ->
+  translated = switch direction
     when 'up' then 'top'
     when 'down' then 'bottom'
     else direction
 
-directionForPanelPosition = (position) ->
-  switch position
-    when 'top' then 'up'
-    when 'bottom' then 'down'
-    else position
+  if capitalize
+    _.capitalize(translated)
+  else
+    translated
+
+getVisiblePanelInDirection = (direction) ->
+  methodName = "get#{translateDirection(direction, true)}Panels"
+  visiblePanels = atom.workspace[methodName]().filter((panel) -> panel.isVisible)
+  switch direction
+    when 'up', 'left' then _.last(visiblePanels)
+    when 'down', 'right' then _.first(visiblePanels)
+
+getNonEmptyDockInDirection = (direction) ->
+  # Dock feature is from Atom v1.17
+  return unless atom.workspace.getBottomDock?
+  return unless direction in AllDockDirections
+
+  methodName = "get#{translateDirection(direction, true)}Dock"
+  dock = atom.workspace[methodName]()
+  if dock.getPaneItems().length
+    dock
+  else
+    null
+
+focusPaneCommandsByDirection =
+  up: 'window:focus-pane-above'
+  down: 'window:focus-pane-below'
+  left: 'window:focus-pane-on-left'
+  right: 'window:focus-pane-on-right'
+
+focusPaneInDirection = (direction) ->
+  success = false
+  disposable = atom.workspace.onDidChangeActivePane -> success = true
+  atom.commands.dispatch(getView(atom.workspace), focusPaneCommandsByDirection[direction])
+  disposable.dispose()
+  success
+
+focusPanelInDirection = (direction) ->
+  success = false
+  if panel = getVisiblePanelInDirection(direction)
+    panel.getItem().focus?()
+    success = true
+  success
+
+focusDockInDirection = (direction) ->
+  success = false
+  if dock = getNonEmptyDockInDirection(direction)
+    dock.activate()
+    success = true
+  success
+
+getFocusedDirection = (direction) ->
+  activeElement = document.activeElement
+
+  for direction in AllPanelDirections
+    panelContainer = atom.workspace.panelContainers[translateDirection(direction)]
+    if getView(panelContainer).contains(activeElement)
+      return direction
+
+  for direction in AllDockDirections
+    dock = getNonEmptyDockInDirection(direction)
+    if dock?.getElement().contains(activeElement)
+      return direction
+  null
 
 # Main
 # -------------------------
 module.exports =
-  paneContainerElement: null
-
   activate: ->
     @subscriptions = new CompositeDisposable
-    @subscribe atom.commands.add 'atom-workspace',
-      'focus-pane-or-panel:focus-above': => @focusPaneOrPanel('up', "window:focus-pane-above")
-      'focus-pane-or-panel:focus-below': => @focusPaneOrPanel('down', "window:focus-pane-below")
-      'focus-pane-or-panel:focus-on-left': => @focusPaneOrPanel('left', "window:focus-pane-on-left")
-      'focus-pane-or-panel:focus-on-right': => @focusPaneOrPanel('right', "window:focus-pane-on-right")
+    @subscriptions.add atom.commands.add 'atom-workspace',
+      'focus-pane-or-panel:focus-above': => @focusPaneOrPanel('up')
+      'focus-pane-or-panel:focus-below': => @focusPaneOrPanel('down')
+      'focus-pane-or-panel:focus-on-left': => @focusPaneOrPanel('left')
+      'focus-pane-or-panel:focus-on-right': => @focusPaneOrPanel('right')
 
   deactivate: ->
     @subscriptions?.dispose()
-    {@subscriptions, @paneContainerElement} = {}
 
-  subscribe: (arg) ->
-    @subscriptions.add(arg)
-
-  isPaneFocused: ->
-    @paneContainerElement ?= getView(atom.workspace.getActivePane().getContainer())
-    @paneContainerElement.contains(document.activeElement)
-
-  focusPanelForDirection: (direction) ->
-    position = panelPositionForDirection(direction)
-    methodName = "get#{_.capitalize(position)}Panels"
-    panels = atom.workspace[methodName]().filter (panel) -> panel.isVisible()
-    if panels.length
-      switch direction
-        when 'up', 'left' then _.last(panels).getItem().focus?()
-        when 'down', 'right' then _.first(panels).getItem().focus?()
-
-  focusPaneOrPanel: (direction, commandName) ->
-    if @isPaneFocused()
-      activePaneChanged = false
-      disposable = atom.workspace.onDidChangeActivePane ->
-        activePaneChanged = true
-
-      atom.commands.dispatch(getView(atom.workspace), commandName)
-      @focusPanelForDirection(direction) unless activePaneChanged
-      disposable.dispose()
+  focusPaneOrPanel: (direction) ->
+    centerContainerElement = getView(getCenterWorkspace().getActivePane().getContainer())
+    if centerContainerElement.contains(document.activeElement)
+      focusPaneInDirection(direction) or
+        focusPanelInDirection(direction) or
+        focusDockInDirection(direction)
     else
-      panelDirection = directionForPanelPosition(getFocusedPanelPosition())
-      if getOppositeDirection(panelDirection) is direction
-        atom.workspace.getActivePane().activate()
+      focusedDirection = getFocusedDirection()
+      if focusedDirection? and oppositeDirection[focusedDirection] is direction
+        getCenterWorkspace().getActivePane().activate()
