@@ -1,4 +1,4 @@
-# NOT MAINTAINED: at 2019.03.13.
+# NO LONGER MAINTAINED: this not is added at 2019.03.13.
 
 # focus-pane-or-panel
 
