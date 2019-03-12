@@ -1,3 +1,6 @@
+# 0.4.0:
+- FINAL VERSION JUST TO ANNOUNCE UNMAINTAINED
+
 # 0.3.0:
 - Fix: now works in v1.17.0-beta which locate `tree-view` on `Dock`.
 
